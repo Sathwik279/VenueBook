@@ -1,0 +1,111 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty methods
+
+package "Frontend" {
+  class AuthContext {
+    +user
+    +token
+    +login(authData)
+    +logout()
+    +register(authData)
+    +hasRole(role)
+    +hasAnyRole(...roles)
+  }
+
+  class ProtectedRoute
+  class authService
+  class venueService
+  class bookingService
+  class httpClient
+}
+
+package "Backend Controllers" {
+  class AuthController
+  class VenueController
+  class BookingController
+}
+
+package "Backend Services" {
+  class VenueService {
+    +getAllVenues()
+    +getAdminVenues(currentUser)
+    +createVenue(venue)
+    +updateMyAvailability(id, blockDates, unblockDates, currentUser)
+  }
+
+  class BookingService {
+    +getMyBookings(currentUser)
+    +createBooking(booking)
+    +getRecentBookings(currentUser)
+  }
+}
+
+package "Backend Domain" {
+  class User {
+    +id : Long
+    +username : String
+    +email : String
+    +password : String
+    +role : Role
+  }
+
+  class Venue {
+    +id : Long
+    +name : String
+    +location : String
+    +capacity : Integer
+    +pricePerHour : Double
+    +isActive : Boolean
+    +unavailableDates : List<LocalDate>
+    +isAvailableOn(date)
+  }
+
+  class Booking {
+    +id : Long
+    +bookingDate : LocalDate
+    +hoursBooked : Integer
+    +status : BookingStatus
+    +totalCost : Double
+  }
+}
+
+package "Repositories" {
+  interface UserRepository
+  interface VenueRepository
+  interface BookingRepository
+}
+
+package "Security" {
+  class SecurityConfig
+  class JwtAuthenticationFilter
+  class JwtUtil
+  class CustomUserDetailsService
+}
+
+AuthContext --> authService
+AuthContext --> httpClient
+ProtectedRoute --> AuthContext
+venueService --> httpClient
+bookingService --> httpClient
+
+AuthController --> UserRepository
+AuthController --> JwtUtil
+AuthController --> CustomUserDetailsService
+
+VenueController --> VenueService
+BookingController --> BookingService
+
+VenueService --> VenueRepository
+BookingService --> BookingRepository
+BookingService --> VenueRepository
+
+Venue "0..*" --> "1" User : admin
+Booking "0..*" --> "1" User : booked by
+Booking "0..*" --> "1" Venue : reserves
+
+SecurityConfig --> JwtAuthenticationFilter
+JwtAuthenticationFilter --> JwtUtil
+JwtAuthenticationFilter --> CustomUserDetailsService
+
+@enduml

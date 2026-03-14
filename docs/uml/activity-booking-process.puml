@@ -1,0 +1,34 @@
+@startuml
+start
+:User logs in;
+:User opens venue details / booking form;
+:Enter booking date and hours;
+:Submit booking request;
+
+:Backend authenticates JWT;
+if (Token valid?) then (yes)
+  :Load venue by venueId;
+  if (Venue exists?) then (yes)
+    :Check blocked dates;
+    if (Date available?) then (yes)
+      :Check existing confirmed booking\nfor same venue and date;
+      if (Already booked?) then (yes)
+        :Return booking conflict error;
+      else (no)
+        :Calculate total cost;
+        :Save booking;
+        :Mark venue date unavailable;
+        :Return success response;
+      endif
+    else (no)
+      :Return venue unavailable error;
+    endif
+  else (no)
+    :Return venue not found error;
+  endif
+else (no)
+  :Return 401 Unauthorized;
+endif
+
+stop
+@enduml

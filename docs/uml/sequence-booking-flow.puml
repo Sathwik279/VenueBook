@@ -1,0 +1,53 @@
+@startuml
+autonumber
+actor "Venue User" as User
+participant "React UI\nBookingForm" as UI
+participant "bookingService /\nhttpClient" as Client
+participant "JwtAuthenticationFilter" as JwtFilter
+participant "BookingController" as Controller
+participant "BookingService" as Service
+participant "VenueRepository" as VenueRepo
+participant "BookingRepository" as BookingRepo
+
+User -> UI : Open booking form and submit date + hours
+UI -> Client : createBooking(venueId, bookingDate, hoursBooked)
+Client -> JwtFilter : POST /api/bookings\nAuthorization: Bearer <token>
+JwtFilter -> JwtFilter : Validate token and resolve user
+JwtFilter -> Controller : Forward authenticated request
+
+Controller -> Controller : Build Booking from BookingRequest\nattach currentUser and venueId
+Controller -> Service : createBooking(booking)
+
+Service -> VenueRepo : findById(venueId)
+VenueRepo --> Service : Venue
+
+alt venue not found
+  Service --> Controller : IllegalArgumentException
+  Controller --> UI : 400 Bad Request
+else venue found
+  Service -> Service : validateVenueAvailability(venue, bookingDate)
+
+  alt date blocked by admin
+    Service --> Controller : IllegalArgumentException
+    Controller --> UI : 400 Venue not available
+  else date open
+    Service -> BookingRepo : findConfirmedBookingByVenueAndDate(venueId, bookingDate)
+    BookingRepo --> Service : existing booking / none
+
+    alt booking already exists
+      Service --> Controller : IllegalArgumentException
+      Controller --> UI : 400 Venue already booked
+    else booking can proceed
+      Service -> Service : totalCost = pricePerHour * hoursBooked
+      Service -> BookingRepo : save(booking)
+      BookingRepo --> Service : saved booking
+      Service -> VenueRepo : save(venue with bookingDate blocked)
+      VenueRepo --> Service : updated venue
+      Service --> Controller : created booking
+      Controller --> UI : 201 Created + booking payload
+      UI --> User : Show booking confirmation
+    end
+  end
+end
+
+@enduml

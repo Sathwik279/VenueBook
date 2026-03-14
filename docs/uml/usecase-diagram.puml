@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor Guest
+actor "Venue User" as VenueUser
+actor "Venue Admin" as VenueAdmin
+
+rectangle EasyVenue {
+  usecase "Register Account" as UC_Register
+  usecase "Login" as UC_Login
+  usecase "Browse Venues" as UC_Browse
+  usecase "View Venue Details" as UC_ViewVenue
+  usecase "Book Venue" as UC_Book
+  usecase "View My Bookings" as UC_MyBookings
+
+  usecase "View My Venues" as UC_AdminVenues
+  usecase "Add Venue" as UC_AddVenue
+  usecase "Update Venue Availability" as UC_Availability
+  usecase "View Recent Bookings" as UC_RecentBookings
+
+  usecase "Validate JWT Token" as UC_ValidateJwt
+  usecase "Check Venue Availability" as UC_CheckAvailability
+}
+
+Guest --> UC_Register
+Guest --> UC_Login
+
+VenueUser --> UC_Browse
+VenueUser --> UC_ViewVenue
+VenueUser --> UC_Book
+VenueUser --> UC_MyBookings
+
+VenueAdmin --> UC_AdminVenues
+VenueAdmin --> UC_AddVenue
+VenueAdmin --> UC_Availability
+VenueAdmin --> UC_RecentBookings
+
+UC_Browse .> UC_ValidateJwt : <<include>>
+UC_ViewVenue .> UC_ValidateJwt : <<include>>
+UC_Book .> UC_ValidateJwt : <<include>>
+UC_Book .> UC_CheckAvailability : <<include>>
+UC_MyBookings .> UC_ValidateJwt : <<include>>
+UC_AdminVenues .> UC_ValidateJwt : <<include>>
+UC_AddVenue .> UC_ValidateJwt : <<include>>
+UC_Availability .> UC_ValidateJwt : <<include>>
+UC_RecentBookings .> UC_ValidateJwt : <<include>>
+
+@enduml

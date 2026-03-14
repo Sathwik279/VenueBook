@@ -1,0 +1,85 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+actor "Guest" as Guest
+actor "Venue User" as VenueUser
+actor "Venue Admin" as VenueAdmin
+
+node "Client Browser" {
+  component "React + Vite Frontend" as Frontend
+  component "AuthContext" as AuthContext
+  component "ProtectedRoute" as ProtectedRoute
+  component "Service Layer\n(authService, venueService,\nbookingService, httpClient)" as FrontendServices
+}
+
+node "Spring Boot Backend" {
+  component "Security Layer\nSecurityConfig\nJwtAuthenticationFilter\nJwtUtil\nCustomUserDetailsService" as Security
+
+  package "Controllers" {
+    component "AuthController" as AuthController
+    component "VenueController" as VenueController
+    component "BookingController" as BookingController
+  }
+
+  package "Services" {
+    component "VenueService" as VenueService
+    component "BookingService" as BookingService
+  }
+
+  package "Repositories" {
+    component "UserRepository" as UserRepository
+    component "VenueRepository" as VenueRepository
+    component "BookingRepository" as BookingRepository
+  }
+
+  package "Domain Model" {
+    database "User" as UserEntity
+    database "Venue" as VenueEntity
+    database "Booking" as BookingEntity
+  }
+}
+
+database "Relational Database" as DB
+
+Guest --> Frontend
+VenueUser --> Frontend
+VenueAdmin --> Frontend
+
+Frontend --> AuthContext
+Frontend --> ProtectedRoute
+Frontend --> FrontendServices
+FrontendServices --> Security : HTTP + Bearer token
+Security --> AuthController
+Security --> VenueController
+Security --> BookingController
+
+AuthController --> UserRepository
+VenueController --> VenueService
+BookingController --> BookingService
+
+VenueService --> VenueRepository
+BookingService --> BookingRepository
+BookingService --> VenueRepository
+
+UserRepository --> UserEntity
+VenueRepository --> VenueEntity
+BookingRepository --> BookingEntity
+
+UserEntity --> DB
+VenueEntity --> DB
+BookingEntity --> DB
+
+note right of FrontendServices
+  httpClient reads token from localStorage
+  and injects Authorization header.
+end note
+
+note right of Security
+  All routes except /api/auth/**
+  require authentication.
+  Method-level role checks enforce
+  VENUE_USER and VENUE_ADMIN access.
+end note
+
+@enduml
