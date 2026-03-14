@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findTop10ByUserOrderByCreatedAtDesc(User user);
+    List<Booking> findTop10ByVenue_AdminOrderByCreatedAtDesc(User admin);
+    List<Booking> findTop10ByOrderByCreatedAtDesc();
     List<Booking> findByUser(User user);
 
     void deleteByIdAndUser(Long id, User user);

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.easyvenue.backend.dto.BookingAdminViewDto;
 import com.easyvenue.backend.dto.BookingRequest;
 import com.easyvenue.backend.model.Booking;
 import com.easyvenue.backend.model.User;
@@ -64,8 +65,12 @@ public class BookingController {
     }
 
     @GetMapping("/recent")
-    public List<Booking> getRecentBookings(@AuthenticationPrincipal User currentUser) {
-        return bookingService.getRecentBookings(currentUser); 
+    @PreAuthorize("hasRole('VENUE_ADMIN') or hasRole('ADMIN')")
+    public List<BookingAdminViewDto> getRecentBookings(@AuthenticationPrincipal User currentUser) {
+        return bookingService.getRecentBookings(currentUser)
+                .stream()
+                .map(BookingAdminViewDto::from)
+                .toList();
     }
 
     @GetMapping("/{id}")

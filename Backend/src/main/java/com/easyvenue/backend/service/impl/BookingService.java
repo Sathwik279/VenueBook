@@ -48,21 +48,25 @@ public class BookingService {
     }
 
     public List<Booking> getRecentBookings(User currentUser) {
-        List<Booking> bookings = bookingRepository.findTop10ByUserOrderByCreatedAtDesc(currentUser);
-        System.out.println("📊 Found " + bookings.size() + " recent bookings");
-        return bookings;
+        if (currentUser.getRole() == User.Role.VENUE_ADMIN) {
+            return bookingRepository.findTop10ByVenue_AdminOrderByCreatedAtDesc(currentUser);
+        }
+        if (currentUser.getRole() == User.Role.ADMIN) {
+            return bookingRepository.findTop10ByOrderByCreatedAtDesc();
+        }
+        throw new IllegalArgumentException("Only admins can view recent bookings");
     }
 
-    public Optional<Booking> getBookingById(Long id,User currentUser) {
-        return bookingRepository.findByIdAndUser(id,currentUser);
+    public Optional<Booking> getBookingById(Long id, User currentUser) {
+        return bookingRepository.findByIdAndUser(id, currentUser);
     }
 
-    public void deleteBooking(Long id,User currentUser) {
-        bookingRepository.deleteByIdAndUser(id,currentUser);
+    public void deleteBooking(Long id, User currentUser) {
+        bookingRepository.deleteByIdAndUser(id, currentUser);
     }
 
-    public Booking updateBooking(Long id, Booking updatedBooking,User currentUser) {
-        return bookingRepository.findByIdAndUser(id,currentUser)
+    public Booking updateBooking(Long id, Booking updatedBooking, User currentUser) {
+        return bookingRepository.findByIdAndUser(id, currentUser)
                 .map(existingBooking -> {
                     existingBooking.setBookingDate(updatedBooking.getBookingDate());
                     existingBooking.setHoursBooked(updatedBooking.getHoursBooked());
