@@ -1,0 +1,76 @@
+# 🚀 Google Cloud Run Deployment: CI/CD Pipeline (Monorepo Optimized)
+# ------------------------------------------------------------------
+# Place this file at: .github/workflows/deploy.yml (at the Root of your Repo)
+
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main 
+    # 🎯 Only trigger when files inside the 'backend' folder change
+    paths:
+      - 'backend/**'
+
+env:
+  # // UPDATE THESE: Replace with the values you provided in setup-gcp.sh
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-south1
+  SERVICE_NAME: backend-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # 🏠 Automatically runs every command inside the /backend folder
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: ☕ Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven' # Speeds up build significantly
+
+    - name: 🔐 Authenticate to Google Cloud
+      id: auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        # // PREREQUISITE: Contents of 'gcp-key.json' must be in GitHub Secret: GCP_SA_KEY
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    - name: 🛠️ Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 🐳 Configure Docker for Artifact Registry
+      run: |-
+        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+    - name: 🧱 Build and Push Docker Image
+      run: |-
+        # 'docker build' will now correctly use the /backend folder
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+    - name: 🚀 Deploy to Cloud Run
+      id: deploy
+      uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        service: ${{ env.SERVICE_NAME }}
+        region: ${{ env.REGION }}
+        image: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        # Pass database secrets to the service from GitHub Secrets 
+        env_vars: |
+          SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.TIDB_HOST }}:4000/test?useSSL=true&verifyServerCertificate=true&trustCertificateKeyStoreUrl=file:/app/certs/isrgrootx1.pem
+          SPRING_DATASOURCE_USERNAME=${{ secrets.TIDB_USER }}
+          SPRING_DATASOURCE_PASSWORD=${{ secrets.TIDB_PASSWORD }}
+
+    - name: 🏁 Final Success Check
+      run: |-
+        echo "🚀 Successfully deployed to: ${{ steps.deploy.outputs.url }}"
