@@ -68,7 +68,7 @@ jobs:
         # Pass database secrets to the service from GitHub Secrets 
         env_vars: |
           # 🟢 Corrected: Points to truststore.jks and added the password
-          SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.TIDB_HOST }}:4000/test?useSSL=true&verifyServerCertificate=true&trustCertificateKeyStoreUrl=file:/app/certs/truststore.jks&trustCertificateKeyStorePassword=changeit
+          SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.TIDB_HOST }}:4000/easyvenue?useSSL=true&verifyServerCertificate=true&trustCertificateKeyStoreUrl=file:/app/certs/truststore.jks&trustCertificateKeyStorePassword=changeit
           SPRING_DATASOURCE_USERNAME=${{ secrets.TIDB_USER }}
           SPRING_DATASOURCE_PASSWORD=${{ secrets.TIDB_PASSWORD }}
 
