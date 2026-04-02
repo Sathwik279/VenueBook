@@ -17,6 +17,7 @@ import com.easyvenue.backend.repository.VenueRepository;
 @Service
 public class BookingService {
 
+    
     @Autowired
     private BookingRepository bookingRepository;
 
