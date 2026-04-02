@@ -44,6 +44,7 @@ export async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
+    credentials: "include",
     body: hasBody && typeof options.body !== "string"
       ? JSON.stringify(options.body)
       : options.body,
