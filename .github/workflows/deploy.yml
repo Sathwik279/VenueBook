@@ -65,12 +65,13 @@ jobs:
         service: ${{ env.SERVICE_NAME }}
         region: ${{ env.REGION }}
         image: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
-        # Pass database secrets to the service from GitHub Secrets 
+        # Pass essential secrets only
         env_vars: |
-          # 🟢 Corrected: Points to truststore.jks and added the password
           SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.TIDB_HOST }}:4000/easyvenue?useSSL=true&verifyServerCertificate=true&trustCertificateKeyStoreUrl=file:/app/certs/truststore.jks&trustCertificateKeyStorePassword=changeit
           SPRING_DATASOURCE_USERNAME=${{ secrets.TIDB_USER }}
           SPRING_DATASOURCE_PASSWORD=${{ secrets.TIDB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ALLOWED_ORIGINS=http://localhost:5173,https://venuebook-716a0.web.app
 
     - name: 🏁 Final Success Check
       run: |-
