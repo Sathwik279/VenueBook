@@ -23,11 +23,14 @@ WORKDIR /app
 # Most Spring Boot projects output to /app/target/*.jar
 COPY --from=build /app/target/*.jar app.jar
 
-# [3] DATABASE SECURITY: Download the CA certificate for TiDB Cloud
+# [3] DATABASE SECURITY: Download & Convert CA certificate for TiDB Cloud
+# JDBC requires JKS or PKCS12 format, we convert the PEM text file using keytool.
 RUN mkdir -p /app/certs && \
     apt-get update && apt-get install -y curl && \
     curl -o /app/certs/isrgrootx1.pem https://letsencrypt.org/certs/isrgrootx1.pem.txt && \
+    keytool -importcert -alias tidb -file /app/certs/isrgrootx1.pem -keystore /app/certs/truststore.jks -storepass changeit -noprompt && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Set default configuration (can be overridden in Cloud Run)
 ENV SPRING_PROFILES_ACTIVE=prod

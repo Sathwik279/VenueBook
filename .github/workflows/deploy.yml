@@ -1,16 +1,13 @@
-# 🚀 Google Cloud Run Deployment: CI/CD Pipeline (Monorepo Optimized)
-# ------------------------------------------------------------------
-# Place this file at: .github/workflows/deploy.yml (at the Root of your Repo)
+# 🚀 Google Cloud Run Deployment: CI/CD Pipeline
+# --------------------------------------------------------
+# This workflow automatically builds and deploys your Java backend to GCP on every push to main.
 
 name: Deploy to Google Cloud Run
 
 on:
   push:
     branches:
-      - main 
-    # 🎯 Only trigger when files inside the 'backend' folder change
-    paths:
-      - 'backend/**'
+      - main # Change this to your default branch if different
 
 env:
   # // UPDATE THESE: Replace with the values you provided in setup-gcp.sh
@@ -21,11 +18,6 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-    # 🏠 Automatically runs every command inside the /backend folder
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
     - name: 📥 Checkout Repository
@@ -54,7 +46,6 @@ jobs:
 
     - name: 🧱 Build and Push Docker Image
       run: |-
-        # 'docker build' will now correctly use the /backend folder
         docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }} .
         docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
 
@@ -65,11 +56,18 @@ jobs:
         service: ${{ env.SERVICE_NAME }}
         region: ${{ env.REGION }}
         image: ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/backend/${{ env.SERVICE_NAME }}:${{ github.sha }}
-        # Pass database secrets to the service from GitHub Secrets 
+        # 🧪 Environment Variables (Injected from GitHub Secrets)
+        # These will be used by application-prod.properties 
         env_vars: |
-          SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.TIDB_HOST }}:4000/test?useSSL=true&verifyServerCertificate=true&trustCertificateKeyStoreUrl=file:/app/certs/isrgrootx1.pem
-          SPRING_DATASOURCE_USERNAME=${{ secrets.TIDB_USER }}
-          SPRING_DATASOURCE_PASSWORD=${{ secrets.TIDB_PASSWORD }}
+          TIDB_HOST=${{ secrets.TIDB_HOST }}
+          TIDB_USER=${{ secrets.TIDB_USER }}
+          TIDB_PASSWORD=${{ secrets.TIDB_PASSWORD }}
+          TIDB_DB=${{ secrets.TIDB_DB }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+          SPRING_PROFILES_ACTIVE=prod
+
+
 
     - name: 🏁 Final Success Check
       run: |-
