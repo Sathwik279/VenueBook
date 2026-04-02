@@ -25,6 +25,7 @@ import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.service.impl.BookingService;
 
+
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "*")
