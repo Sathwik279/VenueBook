@@ -5,10 +5,13 @@
 name: Deploy to Google Cloud Run
 
 on:
+  # 🎯 Manual Trigger: Go to 'Actions' tab and click 'Run workflow'
+  workflow_dispatch:
+  
+  # 🎯 Deploy only when you're ready (manually or on merge to main)
   push:
     branches:
       - main 
-    # 🎯 Only trigger when files inside the 'backend' folder change
     paths:
       - 'backend/**'
 
