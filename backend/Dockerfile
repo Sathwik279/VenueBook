@@ -31,7 +31,6 @@ RUN mkdir -p /app/certs && \
     keytool -importcert -alias tidb -file /app/certs/isrgrootx1.pem -keystore /app/certs/truststore.jks -storepass changeit -noprompt && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
 # Set default configuration (can be overridden in Cloud Run)
 ENV SPRING_PROFILES_ACTIVE=prod
 
