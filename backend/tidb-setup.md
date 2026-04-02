@@ -17,7 +17,7 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 ## 🔒 SSL / CA Certificates
 
-TiDB Cloud requires SSL for secure connection. Most TiDB clusters use the **ISRG Root X1** certificate (Let's Encrypt).
+TiDB Cloud  requires SSL for secure connection. Most TiDB clusters use the **ISRG Root X1** certificate (Let's Encrypt).
 
 ### Option 1: Bundle with Docker (Recommended)
 Add these lines to your `Dockerfile`:
