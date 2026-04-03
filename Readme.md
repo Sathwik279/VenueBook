@@ -2,6 +2,15 @@
 
 A full-stack web application built for **venue owners and users** to manage and book event spaces. Features a modern Java Spring Boot backend with React frontend, designed with scalable architecture, modular codebase, and RESTful API best practices.
 
+## Requirements to run this app in your system (IMPORTANT)
+- Need maven installation to run the command mvn spring-boot:run
+- Need node js for react to run in the frontend
+- Need Mysql with easyvenue named database
+- Need to map the Mysql details in the application.properties file in the backend properly
+- Check whether the frontend local host or deployment url is present in the cors allowed url in the Security Config
+- Check whether the backend url is present in the VITE_API_BASE_URL in the env file if local run or in the secrets if cloud deployment when you you publish to firebase build it with the value     in the env file it will automatically take the value from the env file
+
+
 ## 🚀 Features
 
 ### 🛠️ Admin (Venue Owners)
