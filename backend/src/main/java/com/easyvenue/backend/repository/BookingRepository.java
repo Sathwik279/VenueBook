@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findConfirmedBookingByVenueAndDate(
             @Param("venueId") Long venueId,
             @Param("bookingDate") LocalDate bookingDate
+    );
+
+    @Query("SELECT b FROM Booking b WHERE b.venue.id = :venueId " +
+            "AND b.status = 'CONFIRMED' " +
+            "AND (b.startTime < :endTime AND b.endTime > :startTime)")
+    List<Booking> findOverlappingBookings(
+            @Param("venueId") Long venueId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
     );
 
     List<Booking> findByVenueIdOrderByCreatedAtDesc(Long venueId);

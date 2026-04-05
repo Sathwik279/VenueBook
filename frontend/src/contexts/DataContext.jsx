@@ -216,13 +216,18 @@ export function DataProvider({ children }) {
   }, [loaded.venueDetails, venueDetails]);
 
   const createBookingOptimistic = useCallback(async (bookingData, venue) => {
-    const previousBookings = myBookings;
+    const start = new Date(bookingData.startTime);
+    const end = new Date(bookingData.endTime);
+    const hours = Math.max(1, Math.round((end - start) / (1000 * 60 * 60)));
+
     const optimisticBooking = {
       id: `temp-${Date.now()}`,
-      bookingDate: bookingData.bookingDate,
-      hoursBooked: bookingData.hoursBooked,
+      startTime: bookingData.startTime,
+      endTime: bookingData.endTime,
+      bookingDate: bookingData.startTime.split('T')[0],
+      hoursBooked: hours,
       status: "CONFIRMED",
-      totalCost: (venue?.pricePerHour || 0) * bookingData.hoursBooked,
+      totalCost: (venue?.pricePerHour || 0) * hours,
       createdAt: new Date().toISOString(),
       venue: venue
         ? {

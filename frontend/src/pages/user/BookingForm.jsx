@@ -21,8 +21,8 @@ export default function BookingForm() {
   // ===== FORM STATE MANAGEMENT =====
   // Centralized form state with default values
   const [form, setForm] = useState({
-    bookingDate: "",
-    hoursBooked: 1,
+    startTime: "",
+    endTime: "",
   });
   const [submitError, setSubmitError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,21 +41,21 @@ export default function BookingForm() {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: name === "hoursBooked" ? parseInt(value) || 1 : value, // Ensure hoursBooked is always a number
+      [name]: value,
     }));
   };
 
   // Handle form submission with validation
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.bookingDate) return;
+    if (!form.startTime || !form.endTime) return;
     setSubmitError(null);
     setIsSubmitting(true);
     createBookingOptimistic(
       {
         venueId: parseInt(venueId, 10),
-        bookingDate: form.bookingDate,
-        hoursBooked: parseInt(form.hoursBooked, 10) || 1,
+        startTime: form.startTime,
+        endTime: form.endTime,
       },
       venue,
     )
@@ -78,7 +78,12 @@ export default function BookingForm() {
 
   // Calculate total price with fallback handling
   const pricePerHour = venue.pricePerHour || 0;
-  const estimatedPrice = (form.hoursBooked || 1) * pricePerHour;
+  
+  const hoursBooked = form.startTime && form.endTime 
+    ? Math.max(1, Math.round((new Date(form.endTime) - new Date(form.startTime)) / (1000 * 60 * 60)))
+    : 1;
+    
+  const estimatedPrice = hoursBooked * pricePerHour;
 
   // ===== LOADING STATE =====
   // Show loading spinner while venue data is being fetched
@@ -193,27 +198,22 @@ export default function BookingForm() {
 
                     {/* Date and Duration Grid */}
                     <div className="grid sm:grid-cols-2 gap-4">
-                      {/* Booking Date Field */}
+                      {/* Start Time Field */}
                       <div>
                         <label
-                          htmlFor="bookingDate"
+                          htmlFor="startTime"
                           className="block text-sm font-medium text-slate-700 mb-2"
                         >
-                          Booking Date <span className="text-red-600">*</span>
+                          Start Time <span className="text-red-600">*</span>
                         </label>
                         <div className="relative">
                           <input
-                            id="bookingDate"
-                            name="bookingDate"
-                            type="date"
-                            min={new Date().toISOString().split("T")[0]} // Prevent past dates
-                            max={
-                              new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-                                .toISOString()
-                                .split("T")[0]
-                            } // Max 1 year ahead
+                            id="startTime"
+                            name="startTime"
+                            type="datetime-local"
+                            min={new Date().toISOString().slice(0, 16)} 
                             className="w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
-                            value={form.bookingDate}
+                            value={form.startTime}
                             onChange={handleChange}
                             required
                           />
@@ -221,24 +221,22 @@ export default function BookingForm() {
                         </div>
                       </div>
 
-                      {/* Duration Field */}
+                      {/* End Time Field */}
                       <div>
                         <label
-                          htmlFor="hoursBooked"
+                          htmlFor="endTime"
                           className="block text-sm font-medium text-slate-700 mb-2"
                         >
-                          Duration (Hours) <span className="text-red-600">*</span>
+                          End Time <span className="text-red-600">*</span>
                         </label>
                         <div className="relative">
                           <input
-                            id="hoursBooked"
-                            name="hoursBooked"
-                            type="number"
-                            min="1"
-                            max="24" // Maximum 24 hours
-                            step="1"
+                            id="endTime"
+                            name="endTime"
+                            type="datetime-local"
+                            min={form.startTime || new Date().toISOString().slice(0, 16)}
                             className="w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
-                            value={form.hoursBooked}
+                            value={form.endTime}
                             onChange={handleChange}
                             required
                           />
@@ -273,7 +271,8 @@ export default function BookingForm() {
                     type="submit"
                     disabled={
                       isSubmitting ||
-                      !form.bookingDate
+                      !form.startTime ||
+                      !form.endTime
                     }
                     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Submit booking form"
@@ -324,19 +323,29 @@ export default function BookingForm() {
                   </span>
                 </div>
 
-                {/* Selected Date */}
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600 font-medium">Date</span>
-                  <span className="text-slate-900 font-semibold">
-                    {form.bookingDate
-                      ? new Date(form.bookingDate).toLocaleDateString("en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })
-                      : "Not selected"}
-                  </span>
+                {/* Selected Time Range */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-slate-600 font-medium">Schedule</span>
+                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500">From</span>
+                        <span className="font-semibold text-slate-900">
+                          {form.startTime 
+                            ? new Date(form.startTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                            : "--"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-slate-500">To</span>
+                        <span className="font-semibold text-slate-900">
+                          {form.endTime 
+                            ? new Date(form.endTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                            : "--"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Total Price */}
@@ -354,7 +363,7 @@ export default function BookingForm() {
                   {pricePerHour > 0 && (
                     <p className="text-xs text-slate-500 mt-1 text-right">
                       ₹{pricePerHour.toLocaleString("en-IN")}/hr ×{" "}
-                      {form.hoursBooked} hour{form.hoursBooked !== 1 ? "s" : ""}
+                      {hoursBooked} hour{hoursBooked !== 1 ? "s" : ""}
                     </p>
                   )}
                 </div>

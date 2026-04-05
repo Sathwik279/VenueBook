@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,7 @@ public class VenueDataInitializer implements CommandLineRunner {
         try {
             initializeUsers();
             initializeVenues();
+            initializeBookings();
             System.out.println("✅ Venue data initialized successfully!");
             System.out.println("🎯 Ready for booking process testing!");
         } catch (Exception e) {
@@ -136,6 +138,34 @@ public class VenueDataInitializer implements CommandLineRunner {
                 createVenue("Harmony Hall", "Surat", 115, 2950.0,
                         List.of(LocalDate.of(2025, 7, 23)))
         );
+    }
+
+    private void initializeBookings() {
+        if (bookingRepository.count() > 0) return;
+
+        User user = userRepository.findByEmail("228w1a0554@vrsec.ac.in").orElse(null);
+        Venue venue = venueRepository.findAll().stream()
+                .filter(v -> v.getName().equals("Skyline Banquet Hall"))
+                .findFirst()
+                .orElse(null);
+
+        if (user != null && venue != null) {
+            // Create a sample booking for tomorrow from 10 AM to 2 PM
+            LocalDateTime startTime = LocalDate.now().plusDays(1).atTime(10, 0);
+            LocalDateTime endTime = LocalDate.now().plusDays(1).atTime(14, 0);
+            
+            com.easyvenue.backend.model.Booking booking = new com.easyvenue.backend.model.Booking(
+                    venue,
+                    user,
+                    startTime.toLocalDate(),
+                    startTime,
+                    endTime,
+                    4,
+                    venue.getPricePerHour() * 4
+            );
+            bookingRepository.save(booking);
+            System.out.println("📅 Created sample booking for intersection testing");
+        }
     }
 
     private Venue createVenue(String name, String location, Integer capacity,

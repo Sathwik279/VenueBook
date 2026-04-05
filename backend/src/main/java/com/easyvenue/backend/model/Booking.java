@@ -39,6 +39,12 @@ public class Booking {
     @Column(nullable = false)
     private Integer hoursBooked;
 
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
+
     @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.CONFIRMED;
 
@@ -53,12 +59,14 @@ public class Booking {
     }
 
     public Booking(Venue venue, User user,
-                   LocalDate bookingDate, Integer hoursBooked, Double totalCost) {
+                   LocalDate bookingDate, LocalDateTime startTime, LocalDateTime endTime, Integer hoursBooked, Double totalCost) {
         this.venue = venue;
+        this.user = user;
         this.bookingDate = bookingDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.hoursBooked = hoursBooked;
         this.totalCost = totalCost;
-        this.user = user;
     }
 
     public Long getId() {
@@ -99,6 +107,22 @@ public class Booking {
         this.hoursBooked = hoursBooked;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     public BookingStatus getStatus() {
         return status;
     }
@@ -124,8 +148,10 @@ public class Booking {
         return "Booking{" +
                 "id=" + id +
                 ", venue=" + (venue != null ? venue.getName() : "null") +
-                ", userId='" + user + '\'' +
+                ", user=" + (user != null ? user.getEmail() : "null") +
                 ", bookingDate=" + bookingDate +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 ", hoursBooked=" + hoursBooked +
                 ", status=" + status +
                 ", totalCost=" + totalCost +

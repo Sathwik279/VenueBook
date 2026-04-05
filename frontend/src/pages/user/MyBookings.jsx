@@ -143,7 +143,7 @@ export default function MyBookings() {
                       Venue
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Date
+                      Schedule
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Duration
@@ -181,12 +181,25 @@ export default function MyBookings() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                          {new Date(booking.bookingDate).toLocaleDateString(
-                            "en-IN",
-                            { day: "2-digit", month: "short", year: "numeric" }
-                          )}
+                        <div className="flex flex-col text-sm text-gray-900">
+                          <div className="flex items-center font-medium">
+                            <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                            {new Date(booking.startTime || booking.bookingDate).toLocaleDateString(
+                              "en-IN",
+                              { day: "2-digit", month: "short", year: "numeric" }
+                            )}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 mt-1 ml-6">
+                            {booking.startTime ? (
+                              <>
+                                {new Date(booking.startTime).toLocaleTimeString('en-IN', { timeStyle: 'short' })}
+                                {" - "}
+                                {new Date(booking.endTime).toLocaleTimeString('en-IN', { timeStyle: 'short' })}
+                              </>
+                            ) : (
+                              "Whole Day"
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

@@ -2,13 +2,11 @@ package com.easyvenue.backend.security;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.repository.UserRepository;
 

@@ -46,8 +46,8 @@ public class BookingController {
             @AuthenticationPrincipal User currentUser) {
         try {
             Booking booking = new Booking();
-            booking.setBookingDate(request.getBookingDate());
-            booking.setHoursBooked(request.getHoursBooked());
+            booking.setStartTime(request.getStartTime());
+            booking.setEndTime(request.getEndTime());
             booking.setUser(currentUser);
 
             // Create a venue object with ID

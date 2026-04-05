@@ -9,6 +9,8 @@ public class BookingAdminViewDto {
 
     private Long id;
     private LocalDate bookingDate;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Integer hoursBooked;
     private String status;
     private Double totalCost;
@@ -20,6 +22,8 @@ public class BookingAdminViewDto {
         BookingAdminViewDto dto = new BookingAdminViewDto();
         dto.setId(booking.getId());
         dto.setBookingDate(booking.getBookingDate());
+        dto.setStartTime(booking.getStartTime());
+        dto.setEndTime(booking.getEndTime());
         dto.setHoursBooked(booking.getHoursBooked());
         dto.setStatus(booking.getStatus().name());
         dto.setTotalCost(booking.getTotalCost());
@@ -52,6 +56,22 @@ public class BookingAdminViewDto {
 
     public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public Integer getHoursBooked() {
