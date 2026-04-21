@@ -178,13 +178,13 @@ EasyVenue/
 
 ```bash
 git clone 
-cd EasyVenue
+cd VenueBook
 ```
 
 ### 🔧 Backend Setup
 
 ```bash
-cd Backend
+cd backend
 
 # Install dependencies and compile
 ./mvnw clean install
@@ -213,7 +213,7 @@ spring.h2.console.enabled=true
 ### 🌐 Frontend Setup (In another terminal)
 
 ```bash
-cd Frontend
+cd frontend
 
 # Install dependencies
 npm install
